@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.board.mapper.FileMapper">
+    <insert id="addFile">
+        INSERT INTO TB_BOARD_FILE (
+            NUM,
+            FILE_NO,
+            FILE_NAME_KEY,
+            FILE_NAME,
+            FILE_PATH,
+            FILE_SIZE,
+            REMARK,
+            DEL_YN,
+            INS_USER_ID,
+            INS_DATE,
+            UPD_USER_ID,
+            UPD_DATE
+        ) VALUES (
+            #{num},
+            (SELECT NVL(MAX(FILE_NO)+1, 1) FROM TB_BOARD_FILE),
+            #{fileNameKey},
+            #{fileName},
+            #{filePath},
+            #{fileSize},
+            #{remark},
+            #{delYn},
+            #{insUserId},
+            sysdate,
+            #{updUserId},
+            sysdate
+        )
+    </insert>
+</mapper>
+

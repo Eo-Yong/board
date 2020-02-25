@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.board.mapper.BoardMapper">
+
+	<select id="loginCheck" resultType="int">
+		SELECT
+			count(*) as loginCheck
+		FROM
+		   TB_USER
+		WHERE
+		   USER_ID = #{userId}
+		AND
+		   PASSWORD = #{password}
+	</select>
+
+	<select id="viewMember" resultType="com.example.board.vo.UserVO">
+		SELECT
+			USER_ID,
+			PASSWORD,
+			USER_NAME,
+			USER_REG_DATE,
+			USER_UDPT_DATE,
+			USER_TYPE
+		FROM
+		   TB_USER
+		WHERE
+		   USER_ID = #{userId}
+		AND
+		   PASSWORD = #{password}
+	</select>
+
+	<select id="selectBoardList" resultType="com.example.board.vo.BoardVO">
+		SELECT NUM
+			 ,NAME
+			 ,TITLE
+			 ,READ_COUNT
+			 ,TO_CHAR(WRITE_DATE, 'YYYY-MM-DD') AS WRITE_DATE
+			 ,USER_TYPE
+			 ,USER_ID
+			 ,BOARD_TYPE
+			 ,BOARD_TYPE_NM
+		FROM TB_BOARD
+		WHERE
+		1=1
+		<if test="userType != null and userType == 'nor'">
+			AND USER_TYPE = #{userType}
+			OR USER_TYPE = 'adm'
+		</if>
+		<if test="userType != null and userType == 'com'">
+			AND USER_TYPE = #{userType}
+			OR USER_TYPE = 'adm'
+		</if>
+		ORDER BY NUM DESC
+	</select>
+
+	<select id="selectBoardDetail" resultType="com.example.board.vo.BoardVO">
+		SELECT NUM
+			 ,NAME
+			 ,TITLE
+			 ,CONTENT
+			 ,READ_COUNT
+			 ,TO_CHAR(WRITE_DATE, 'YYYY-MM-DD') AS WRITE_DATE
+			 ,USER_TYPE
+			 ,USER_ID
+		  FROM TB_BOARD
+		 WHERE NUM = #{num}
+	</select>
+
+	<update id="addCnt" parameterType="int">
+		UPDATE TB_BOARD SET
+			READ_COUNT = READ_COUNT + 1
+		WHERE NUM = #{num}
+	</update>
+
+	<insert id="insertBoard" parameterType="com.example.board.vo.BoardVO">
+		INSERT INTO TB_BOARD (
+			NUM,
+			NAME,
+			TITLE,
+			CONTENT,
+			WRITE_DATE,
+			USER_TYPE,
+			USER_ID,
+			BOARD_TYPE,
+			BOARD_TYPE_NM
+		) VALUES (
+			(SELECT NVL(MAX(num)+1, 1) FROM TB_BOARD),
+			#{name},
+			#{title},
+			#{content},
+			sysdate,
+			#{userType},
+			#{userId},
+			#{boardType},
+			#{boardTypeNm}
+		)
+	</insert>
+
+	<update id="updateBoard" parameterType="com.example.board.vo.BoardVO">
+		UPDATE TB_BOARD SET
+			TITLE = #{title},
+			CONTENT = #{content},
+			WRITE_DATE = SYSDATE
+		WHERE NUM = #{num}
+	</update>
+
+	<delete id="deleteBoard" parameterType="int">
+		DELETE FROM TB_BOARD WHERE NUM = #{num}
+	</delete>
+
+	<select id="selectBoardTypeList" resultType="com.example.board.vo.BoardVO">
+		SELECT
+			TYPE_NUM,
+			BOARD_TYPE,
+			TO_CHAR(BOARD_REG_DATE, 'YYYY-MM-DD') AS BOARD_REG_DATE,
+			USE_YN,
+			BOARD_TYPE_NM
+		FROM
+			TB_BOARD_TYPE
+	</select>
+
+	<update id="updateUseYnN" parameterType="String">
+		UPDATE TB_BOARD_TYPE SET
+			USE_YN = 'N'
+		WHERE TYPE_NUM = #{typeNum}
+	</update>
+
+	<update id="updateUseYnY" parameterType="String">
+		UPDATE TB_BOARD_TYPE SET
+			USE_YN = 'Y'
+		WHERE TYPE_NUM = #{typeNum}
+	</update>
+
+	<select id="selectBoardType" resultType="com.example.board.vo.BoardVO">
+		SELECT
+			BOARD_TYPE,
+			BOARD_TYPE_NM
+		FROM
+			TB_BOARD_TYPE
+		WHERE
+			USE_YN = 'Y'
+	</select>
+</mapper>
+
